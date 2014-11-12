@@ -1,0 +1,119 @@
+<!--
+  Copyright 2014 Nicholas Humfrey
+  Copyright 2013 IBM Corp.
+
+  Licensed under the Apache License, Version 2.0 (the "License");
+  you may not use this file except in compliance with the License.
+  You may obtain a copy of the License at
+
+  http://www.apache.org/licenses/LICENSE-2.0
+
+  Unless required by applicable law or agreed to in writing, software
+  distributed under the License is distributed on an "AS IS" BASIS,
+  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  See the License for the specific language governing permissions and
+  limitations under the License.
+-->
+
+<script type="text/x-red" data-template-name="mapper">
+    <div class="form-row">
+        <label for="node-input-name"><i class="fa fa-tag"></i> Name</label>
+        <input type="text" id="node-input-name" placeholder="Name">
+    </div>
+    <div class="form-row" style="padding-top:10px;">
+        If msg.<input type="text" id="node-input-property" style="width: 200px;"/>
+    </div>
+    <div class="form-row">
+        <div id="node-input-mapping-container-div" style="border-radius: 5px; height: 320px; padding: 5px; border: 1px solid #ccc; overflow-y:scroll;">
+        <ol id="node-input-mapping-container" style=" list-style-type:none; margin: 0;">
+        </ol>
+        </div>
+        <a href="#" class="btn btn-mini" id="node-input-add-mapping" style="margin-top: 4px;"><i class="fa fa-plus"></i> Add</a>
+    </div>
+</script>
+
+<script type="text/x-red" data-help-name="mapper">
+    <p>A simple function node to route messages based on its properties.</p>
+    <p>When a message arrives, the selected property is evaluated against each
+    of the defined mappings. The message is then sent to the output of <i>all</i>
+    mappings that pass.</p>
+    <p>Note: the <i>otherwise</i> mapping applies as a "not any of" the mappings preceding it.</p>
+</script>
+
+<script type="text/javascript">
+    RED.nodes.registerType('mapper', {
+        color: "#E2D96E",
+        category: 'function',
+        defaults: {
+            name: {value:""},
+            property: {value:"payload", required:true},
+            map: {value:[{search:"",replace:""}]},
+        },
+        inputs: 1,
+        outputs: 1,
+        icon: "arrow.png",
+        label: function() {
+            return this.name||"mapper";
+        },
+        oneditprepare: function() {
+
+            function generateRow(mapping) {
+                var container = $('<li/>',{style:"margin:0; padding:8px 0px; border-bottom: 1px solid #ccc;"});
+                var row = $('<div/>').appendTo(container);
+                var searchField = $('<input/>',{class:"node-input-mapping-search",type:"text",style:"margin-left: 5px; width: 40%;",placeholder:"Search"}).appendTo(row);
+                var replaceField = $('<input/>',{class:"node-input-mapping-replace",type:"text",style:"margin-left: 5px; width: 40%;",placeholder:"Replace"}).appendTo(row);
+                searchField.val(mapping.search);
+                replaceField.val(mapping.replace);
+
+                var deleteButton = $('<a/>',{href:"#",class:"btn btn-mini", style:"margin-left: 5px;"}).appendTo(row);
+                $('<i/>',{class:"fa fa-remove"}).appendTo(deleteButton);
+
+                deleteButton.click(function() {
+                    container.css({"background":"#fee"});
+                    container.fadeOut(300, function() {
+                        $(this).remove();
+                    });
+                });
+
+                $("#node-input-mapping-container").append(container);
+            }
+
+            $("#node-input-add-mapping").click(function() {
+                generateRow({search:"",replace:""});
+                $("#node-input-mapping-container-div").scrollTop($("#node-input-mapping-container-div").get(0).scrollHeight);
+            });
+
+            for (var i=0;i<this.map.length;i++) {
+                var mapping = this.map[i];
+                generateRow(i+1,mapping);
+            }
+
+            function mapperDialogResize(ev,ui) {
+                $("#node-input-mapping-container-div").css("height",(ui.size.height-260)+"px");
+            };
+
+            $( "#dialog" ).on("dialogresize", mapperDialogResize);
+            $( "#dialog" ).one("dialogopen", function(ev) {
+                var size = $( "#dialog" ).dialog('option','sizeCache-mapper');
+                if (size) {
+                    mapperDialogResize(null,{size:size});
+                }
+            });
+            $( "#dialog" ).one("dialogclose", function(ev,ui) {
+                $( "#dialog" ).off("dialogresize",mapperDialogResize);
+            });
+        },
+        oneditsave: function() {
+            var map = $("#node-input-mapping-container").children();
+            var node = this;
+            node.map = [];
+            map.each(function(i) {
+                var mapping = $(this);
+                node.map.push({
+                    search: mapping.find(".node-input-mapping-search").val(),
+                    replace: mapping.find(".node-input-mapping-replace").val(),
+                });
+            });
+        }
+    });
+</script>
