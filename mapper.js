@@ -25,13 +25,23 @@ module.exports = function(RED) {
         var propertyParts = n.property.split(".");
         var node = this;
 
-        // FIXME: prepare the rules here
+        var mapping = {};
+        for (var i=0; i<node.map.length; i+=1) {
+            var row = node.map[i];
+            mapping[row['search']] = row['replace'];
+        }
 
         this.on('input', function (msg) {
-            var onward = [];
             try {
-                // FIXME: do stuff here
+                var prop = propertyParts.reduce(function (obj, i) {
+                    return obj[i]
+                }, msg);
 
+                if (prop && mapping[prop]) {
+                    // FIXME: sort support property parts
+                    msg[this.property] = mapping[prop];
+                    this.send(msg);
+                }
             } catch(err) {
                 node.warn(err);
             }
