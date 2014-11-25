@@ -20,8 +20,9 @@ module.exports = function(RED) {
 
     function MapperNode(n) {
         RED.nodes.createNode(this, n);
-        this.map = n.map;
         this.property = n.property;
+        this.map = n.map;
+        this.passthrough = n.passthrough;
         var propertyParts = n.property.split(".");
         var node = this;
 
@@ -40,6 +41,8 @@ module.exports = function(RED) {
                 if (prop && mapping[prop]) {
                     // FIXME: sort support property parts
                     msg[this.property] = mapping[prop];
+                    this.send(msg);
+                } else if (node.passthrough) {
                     this.send(msg);
                 }
             } catch(err) {

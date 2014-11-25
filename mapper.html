@@ -30,6 +30,10 @@
         </div>
         <a href="#" class="btn btn-mini" id="node-input-add-mapping" style="margin-top: 4px;"><i class="fa fa-plus"></i> Add</a>
     </div>
+    <div class="form-row" id="node-reg-row">
+        <input type="checkbox" id="node-input-passthrough" style="display: inline-block; width: auto; vertical-align: top;">
+        <label for="node-input-passthrough" style="width: 90%;">Pass through if no match</label>
+    </div>
 </script>
 
 <script type="text/x-red" data-help-name="mapper">
@@ -48,6 +52,7 @@
             name: {value:""},
             property: {value:"payload", required:true},
             map: {value:[{search:"",replace:""}]},
+            passthrough: {value:false},
         },
         inputs: 1,
         outputs: 1,
