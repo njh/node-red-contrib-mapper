@@ -21,7 +21,7 @@
         <input type="text" id="node-input-name" placeholder="Name">
     </div>
     <div class="form-row" style="padding-top:10px;">
-        If msg.<input type="text" id="node-input-property" style="width: 200px;"/>
+        Map the contents of msg.<input type="text" id="node-input-property" style="width: 200px;"/>
     </div>
     <div class="form-row">
         <div id="node-input-mapping-container-div" style="border-radius: 5px; height: 320px; padding: 5px; border: 1px solid #ccc; overflow-y:scroll;">
@@ -37,11 +37,13 @@
 </script>
 
 <script type="text/x-red" data-help-name="mapper">
-    <p>A simple function node to route messages based on its properties.</p>
-    <p>When a message arrives, the selected property is evaluated against each
-    of the defined mappings. The message is then sent to the output of <i>all</i>
-    mappings that pass.</p>
-    <p>Note: the <i>otherwise</i> mapping applies as a "not any of" the mappings preceding it.</p>
+    <p>Node to map the contents of a message property from one value to another.</p>
+    <p>The message property is compared against each of the values in the left-hand column
+       and if there is a match, it is changed to the value in the right-hand column.</p>
+    <p>By default, the <b>msg.payload</b> is the property that is operated on, but this 
+       can be changed to other properties, such as the topic name.</p>
+    <p>If the message does not match any of the values in the mapping, the message can 
+       either be ignored or passed through unmodified.</p>
 </script>
 
 <script type="text/javascript">
