@@ -34,15 +34,21 @@ module.exports = function(RED) {
 
         this.on('input', function (msg) {
             try {
-                var prop = propertyParts.reduce(function (obj, i) {
-                    return obj[i]
+                var depth = 0;
+                var found = false;
+                propertyParts.reduce(function(obj, i) {
+                    if (++depth === propertyParts.length) {
+                        var value = obj[i];
+                        if (value && mapping[value]) {
+                            obj[i] = mapping[value];
+                            found = true;
+                        }
+                    } else {
+                        return obj[i];
+                    }
                 }, msg);
 
-                if (prop && mapping[prop]) {
-                    // FIXME: sort support property parts
-                    msg[this.property] = mapping[prop];
-                    this.send(msg);
-                } else if (node.passthrough) {
+                if (found || node.passthrough) {
                     this.send(msg);
                 }
             } catch(err) {
